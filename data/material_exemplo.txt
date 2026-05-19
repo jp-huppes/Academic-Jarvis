@@ -1,0 +1,2 @@
+Regressão logística é um modelo estatístico utilizado para prever a probabilidade de uma variável resposta categórica binária com base em uma ou mais variáveis explicativas.
+Embeddings são representações vetoriais de palavras ou documentos em um espaço contínuo de alta dimensão, onde termos semanticamente semelhantes ficam próximos.

@@ -1,0 +1,14 @@
+[
+    {
+        "id": 1,
+        "titulo": "Ler artigo sobre Embeddings",
+        "status": "pendente",
+        "data_limite": "2026-05-20"
+    },
+    {
+        "id": 2,
+        "titulo": "Configurar ambiente do Gemma 12B",
+        "status": "concluido",
+        "data_limite": "2026-05-18"
+    }
+]

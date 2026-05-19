@@ -1,0 +1,16 @@
+[
+    {
+        "id": 1,
+        "titulo": "Aula de Inteligência Artificial",
+        "data": "2026-05-21",
+        "horario": "19:00",
+        "tipo": "aula"
+    },
+    {
+        "id": 2,
+        "titulo": "Prova de Redes de Computadores",
+        "data": "2026-05-22",
+        "horario": "07:30",
+        "tipo": "prova"
+    }
+]
