@@ -1,14 +1,62 @@
 [
     {
         "id": 1,
-        "titulo": "Ler artigo sobre Embeddings",
-        "status": "pendente",
-        "data_limite": "2026-05-20"
+        "descricao": "Ler artigo sobre RAG e Embeddings",
+        "prazo": "2026-05-20",
+        "status": "pendente"
     },
     {
         "id": 2,
-        "titulo": "Configurar ambiente do Gemma 12B",
-        "status": "concluido",
-        "data_limite": "2026-05-18"
+        "descricao": "Configurar ambiente virtual e GitHub",
+        "prazo": "2026-05-18",
+        "status": "concluida"
+    },
+    {
+        "id": 3,
+        "descricao": "Fazer lista de exercícios de IA",
+        "prazo": "2026-05-21",
+        "status": "pendente"
+    },
+    {
+        "id": 4,
+        "descricao": "Estudar modelo relacional para BD",
+        "prazo": "2026-05-22",
+        "status": "pendente"
+    },
+    {
+        "id": 5,
+        "descricao": "Implementar tool calling no projeto",
+        "prazo": "2026-05-24",
+        "status": "pendente"
+    },
+    {
+        "id": 6,
+        "descricao": "Revisar matéria de Redes para a prova",
+        "prazo": "2026-05-23",
+        "status": "pendente"
+    },
+    {
+        "id": 7,
+        "descricao": "Testar API do Gemma 12B localmente",
+        "prazo": "2026-05-19",
+        "status": "concluida"
+    },
+    {
+        "id": 8,
+        "descricao": "Escrever README inicial do repositório",
+        "prazo": "2026-05-19",
+        "status": "concluida"
+    },
+    {
+        "id": 9,
+        "descricao": "Preparar apresentação de Eng. de Software",
+        "prazo": "2026-05-28",
+        "status": "pendente"
+    },
+    {
+        "id": 10,
+        "descricao": "Submeter baseline do Trabalho 1",
+        "prazo": "2026-05-30",
+        "status": "pendente"
     }
 ]

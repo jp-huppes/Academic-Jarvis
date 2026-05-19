@@ -1,16 +1,72 @@
 [
     {
         "id": 1,
-        "titulo": "Aula de Inteligência Artificial",
-        "data": "2026-05-21",
-        "horario": "19:00",
+        "data": "2026-05-20",
+        "hora": "19:00",
+        "disciplina": "Inteligência Artificial",
         "tipo": "aula"
     },
     {
         "id": 2,
-        "titulo": "Prova de Redes de Computadores",
+        "data": "2026-05-20",
+        "hora": "20:50",
+        "disciplina": "Redes de Computadores",
+        "tipo": "aula"
+    },
+    {
+        "id": 3,
+        "data": "2026-05-21",
+        "hora": "19:00",
+        "disciplina": "Banco de Dados",
+        "tipo": "aula"
+    },
+    {
+        "id": 4,
         "data": "2026-05-22",
-        "horario": "07:30",
+        "hora": "19:00",
+        "disciplina": "Engenharia de Software",
+        "tipo": "prova"
+    },
+    {
+        "id": 5,
+        "data": "2026-05-25",
+        "hora": "19:00",
+        "disciplina": "Sistemas Operacionais",
+        "tipo": "aula"
+    },
+    {
+        "id": 6,
+        "data": "2026-05-26",
+        "hora": "19:00",
+        "disciplina": "Inteligência Artificial",
+        "tipo": "prova"
+    },
+    {
+        "id": 7,
+        "data": "2026-05-27",
+        "hora": "20:50",
+        "disciplina": "Redes de Computadores",
+        "tipo": "aula"
+    },
+    {
+        "id": 8,
+        "data": "2026-05-28",
+        "hora": "19:00",
+        "disciplina": "Banco de Dados",
+        "tipo": "prova"
+    },
+    {
+        "id": 9,
+        "data": "2026-05-29",
+        "hora": "19:00",
+        "disciplina": "Engenharia de Software",
+        "tipo": "aula"
+    },
+    {
+        "id": 10,
+        "data": "2026-06-01",
+        "hora": "19:00",
+        "disciplina": "Sistemas Operacionais",
         "tipo": "prova"
     }
 ]
