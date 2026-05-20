@@ -4,3 +4,5 @@ pdfplumber
 sentence-transformers
 langchain-text-splitters
 chromadb
+os
+python-dotenv

@@ -10,7 +10,10 @@ CAMINHO_CHROMA = "data/chroma_db"
 class PipelineRAG:
     def __init__(self):
             #incialização do modelo de embeddigs
-        self.model = SentenceTransformer("sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2", device="cuda")
+        try: 
+            self.model = SentenceTransformer("sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2", device="cuda")
+        except Exception:
+            self.model = SentenceTransformer("sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2", device="cpu")
 
             # incialização do banco vetorial persistente
         self.chroma_client = chromadb.PersistentClient(path=CAMINHO_CHROMA)

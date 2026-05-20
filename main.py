@@ -1,14 +1,17 @@
 import json
 from openai import OpenAI
 import openai
+import os 
+from dotenv import load_dotenv
+
 
 from tools.agenda import consulte_agenda
 from tools.tarefas import liste_tarefas, adicione_tarefas, conclua_tarefa
 from tools.logger import registre_log
 from tools.definitions import DADOS_DAS_FERRAMENTAS
 from tools.estudos import busque_material_rag
-from key import CHAVE
 
+load_dotenv()
 # Associamos o texto enviado pela IA com a função real do Python
 MAPEADOR_DE_TOOLS = {
     "consulte_agenda": consulte_agenda,
@@ -17,10 +20,10 @@ MAPEADOR_DE_TOOLS = {
     "conclua_tarefa": conclua_tarefa,
     "buscar_material_rag": busque_material_rag
 }
-
+chave = os.getenv("API_KEY")
 client = OpenAI(
     base_url='https://llm.liaufms.org/v1/gemma-3-12b-it',  
-    api_key=CHAVE
+    api_key = chave
 )
 
 def execute_orquestrador(user_message: str):

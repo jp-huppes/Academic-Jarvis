@@ -8,7 +8,8 @@ env/
 *.pyc
 
 # Chaves e credenciais locais (Segurança)
-key.py
+.env
+key.py 
 
 # Opcional: Banco vetorial (Se preferir recriar rodando o script no note)
 # data/chroma_db/
