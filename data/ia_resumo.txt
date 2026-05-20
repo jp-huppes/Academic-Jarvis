@@ -1,0 +1,12 @@
+CONTEÚDO DE ESTUDO - INTELIGÊNCIA ARTIFICIAL (UFMS 2026)
+
+TÓPICO 1: AGENTES INTELIGENTES
+Um agente é tudo o que pode ser considerado capaz de perceber seu ambiente por meio de sensores e agir sobre esse ambiente por meio de atuadores. A arquitetura de um agente pode ser classificada em: Agentes Reflexivos Simples, Agentes Reflexivos Baseados em Modelos, Agentes Baseados em Objetivos e Agentes Baseados na Utilidade.
+
+TÓPICO 2: BUSCA E RESOLUÇÃO DE PROBLEMAS
+Algoritmos de busca são divididos em duas categorias principais:
+1. Busca Cega (Não Informada): Não possui informações sobre o custo dos estados. Exemplos incluem Busca em Largura (BFS), que expande a raiz primeiro e usa uma fila FIFO, e Busca em Profundidade (DFS), que expande o nó mais profundo primeiro usando uma pilha LIFO.
+2. Busca Heurística (Informada): Utiliza conhecimento específico do problema para guiar a busca de forma mais eficiente. O algoritmo A* (A-estrela) é um dos mais famosos, combinando o custo real para alcançar o nó g(n) com o custo estimado para chegar ao objetivo h(n), através da função f(n) = g(n) + h(n). O A* é ótimo e completo se a heurística for admissível (nunca superestima o custo real).
+
+TÓPICO 3: APRENDIZADO DE MÁQUINA
+O aprendizado de máquina divide-se em Supervisionado (onde os dados de treino possuem rótulos/labels, como regressão e classificação) e Não Supervisionado (onde o algoritmo busca padrões e agrupamentos sem rótulos, como o algoritmo K-Means).

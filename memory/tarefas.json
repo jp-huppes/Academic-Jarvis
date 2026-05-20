@@ -64,5 +64,35 @@
     "descricao": "Estudar sistema de Tool Calling",
     "prazo": "2026-05-25",
     "status": "concluida"
+  },
+  {
+    "id": 12,
+    "descricao": "Estudar Banco de Dados",
+    "prazo": "2026-05-29",
+    "status": "pendente"
+  },
+  {
+    "id": 13,
+    "descricao": "Estudar Banco de Dados",
+    "prazo": "2026-05-29",
+    "status": "pendente"
+  },
+  {
+    "id": 14,
+    "descricao": "Estudar Banco de Dados",
+    "prazo": "2026-05-29",
+    "status": "pendente"
+  },
+  {
+    "id": 15,
+    "descricao": "Estudar Banco de Dados",
+    "prazo": "2026-05-29",
+    "status": "pendente"
+  },
+  {
+    "id": 16,
+    "descricao": "Estudar Banco de Dados",
+    "prazo": "2026-05-29",
+    "status": "pendente"
   }
 ]

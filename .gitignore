@@ -1,3 +1,14 @@
+# Ambientes virtuais
 venv/
-__pycache__/
-logs/*.log
+.venv/
+env/
+
+# Caches do Python
+**/__pycache__/
+*.pyc
+
+# Chaves e credenciais locais (Segurança)
+key.py
+
+# Opcional: Banco vetorial (Se preferir recriar rodando o script no note)
+# data/chroma_db/
