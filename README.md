@@ -4,6 +4,8 @@ O **Academic JARVIS** é um assistente inteligente projetado para auxiliar estud
 
 O sistema utiliza um modelo de linguagem (LLM) operando como um **Agente Raciocinador** capaz de acionar ferramentas locais (*Tool Calling*) para manipular calendários, listas de tarefas e realizar buscas semânticas em uma base de dados vetorial (RAG) alimentada por PDFs técnicos da faculdade e livros didáticos de domínio público.
 
+Link do video: https://youtu.be/03CtOU_9cgA
+
 ---
 
 ## 1. Funcionalidades (Tools)
