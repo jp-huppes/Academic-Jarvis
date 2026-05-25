@@ -52,9 +52,11 @@ Certifique-se de ter o **Python 3.10 ou superior** instalado em sua máquina.
    Então, para abrir a interface gráfica web via navegador:
       ```bash
        python -B -m streamlit run app.py
+      ```
    Caso queira interagir com o assistente diretamente pelo terminal:
       ```bash
       python main.py
+      ```
 
 ### Documentação do Dataset
 
