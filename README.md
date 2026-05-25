@@ -71,14 +71,13 @@ Certifique-se de ter o **Python 3.10 ou superior** instalado em sua máquina.
       Em sua maioria os arquivos tetuais tem formato em PDF e resumos em TXT.
 
    3. **Limitações Conhecidas**
-      Restrição Textual —— a extração via 'pdfplumber' lê estritamente caracteres de texto plano. Diagramas de arquitetura, imagens de redes, gráficos de funções e tabelas complexas não são indexados na base vetorial.
-      Alinhamento Linguístico —— Embora o modelo de embeddings seja multilíngue, os livros base estão em inglês e as requisições do chat ocorrem em português, o que pode gerar pequenas distorções de proximidade semântica em termos técnicos muito específicos.
+      - Restrição Textual —— a extração via 'pdfplumber' lê estritamente caracteres de texto plano. Diagramas de arquitetura, imagens de redes, gráficos de funções e tabelas complexas não são indexados na base vetorial.
+      - Alinhamento Linguístico —— Embora o modelo de embeddings seja multilíngue, os livros base estão em inglês e as requisições do chat ocorrem em português, o que pode gerar pequenas distorções de proximidade semântica em termos técnicos muito específicos.
    
    4. **Estratégia de Chunking (Fragmentação)**
       Para preservar o contexto sem estourar a janela de tokens do modelo de embeddings:
-      Algoritmo —— RecursiveCharacterTextSplitter (LangChain), dividindo os textos de forma inteligente ao priorizar quebras de parágrafos e pontos finais.
-      
-      Configuração —— Blocos fixos de 1000 caracteres com sobreposição (overlap) de 200 caracteres entre pedaços vizinhos, garantindo a continuidade de sentenças divididas nas bordas.
+      - Algoritmo —— RecursiveCharacterTextSplitter (LangChain), dividindo os textos de forma inteligente ao priorizar quebras de parágrafos e pontos finais.
+      - Configuração —— Blocos fixos de 1000 caracteres com sobreposição (overlap) de 200 caracteres entre pedaços vizinhos, garantindo a continuidade de sentenças divididas nas bordas.
 
 ### Estrutura de Pastas e Arquivos
 
