@@ -31,7 +31,7 @@ Certifique-se de ter o **Python 3.10 ou superior** instalado em sua máquina.
 
 1. **Clone o repositório:**
    ```bash
-   git clone [https://github.com/jp-huppes/Academic-Jarvis.git](https://github.com/jp-huppes/Academic-Jarvis.git)
+   git clone [https://github.com/jp-huppes/Academic-Jarvis.git]
    cd Academic-Jarvis
 
 2. **Instale dependências:**
@@ -40,14 +40,15 @@ Certifique-se de ter o **Python 3.10 ou superior** instalado em sua máquina.
     
 3. **Variaveis**
    Crie um arquivo chamado .env na raiz do projeto e insira a sua credencial de acesso:
-       API_KEY = "Sua_Chave_Aqui"
+   ```bash
+      API_KEY = "Sua_Chave_Aqui"
 
-4. **Inicialização**
+5. **Inicialização**
 
    Antes de rodar o assistente pela primeira vez, processe os PDFs locais executando o script de ingestão:
       ```bash
-      python indexar.py 
-   
+      python indexar.py
+      ```
    Então, para abrir a interface gráfica web via navegador:
       ```bash
        python -B -m streamlit run app.py
