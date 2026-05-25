@@ -147,7 +147,7 @@ class PipelineRAG:
         )
 
         formatted_sections = []
-        LIMITE_DISTANCIA = 1.50 
+        LIMITE_DISTANCIA = 2.50
         
         if results and results['documents'] and results['documents'][0]:
             docs = results['documents'][0]
@@ -155,8 +155,8 @@ class PipelineRAG:
             distances = results['distances'][0]
 
             for doc, meta, dist in zip(docs, metas, distances):
-                if dist <= LIMITE_DISTANCIA:
-                    fonte = meta.get('fonte', meta.get('arquivo', 'Livro Local'))
-                    formatted_sections.append(f"[Origem: {fonte}]\n{doc}")
+            
+            fonte = meta.get('fonte', meta.get('arquivo', 'Livro Local'))
+            formatted_sections.append(f"[Origem: {fonte}]\n{doc}")
                     
         return formatted_sections
