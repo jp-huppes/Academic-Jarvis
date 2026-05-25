@@ -68,5 +68,68 @@
         "hora": "19:00",
         "disciplina": "Sistemas Operacionais",
         "tipo": "prova"
+    },
+    {
+        "id": "1",
+        "titulo": "Aula de Inteligência Artificial",
+        "data": "2026-05-25",
+        "horario": "19:00",
+        "local": "Laboratório 03 - UFMS"
+    },
+    {
+        "id": "2",
+        "titulo": "Aula de Engenharia de Software",
+        "data": "2026-05-26",
+        "horario": "19:00",
+        "local": "Sala 102 - Bloco 1"
+    },
+    {
+        "id": "3",
+        "titulo": "PROVA: Banco de Dados II",
+        "data": "2026-05-27",
+        "horario": "20:45",
+        "local": "Sala 105 - Bloco 1"
+    },
+    {
+        "id": "4",
+        "titulo": "Aula de Inteligência Artificial",
+        "data": "2026-05-28",
+        "horario": "19:00",
+        "local": "Laboratório 03 - UFMS"
+    },
+    {
+        "id": "5",
+        "titulo": "Reunião do Grupo de Iniciação Científica",
+        "data": "2026-05-29",
+        "horario": "14:00",
+        "local": "Google Meet"
+    },
+    {
+        "data": "2026-05-25",
+        "hora": "07:00",
+        "disciplina": "Probabilidade e Estatística",
+        "tipo": "Aula",
+        "local": "Bloco 1 Sala 102"
+    },
+    {
+        "data": "2026-05-27",
+        "hora": "19:00",
+        "disciplina": "Redes de Computadores",
+        "tipo": "Prova",
+        "local": ""
+    },
+    {
+        "data": "2026-05-25",
+        "hora": "13:00",
+        "disciplina": "Inteligência Artificial",
+        "tipo": "Aula",
+        "local": "Bloco 1 Sala 113"
+    },
+    {
+        "data": "2026-05-25",
+        "hora": "07:00",
+        "disciplina": "Probabilidade e Estatística",
+        "tipo": "Aula",
+        "local": "Bloco 1 Sala 102"
     }
 ]

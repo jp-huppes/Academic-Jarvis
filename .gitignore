@@ -3,13 +3,26 @@ venv/
 .venv/
 env/
 
-# Caches do Python
+# Caches e compilações do Python
 **/__pycache__/
 *.pyc
+.ipynb_checkpoints/
 
-# Chaves e credenciais locais (Segurança)
+# Chaves, credenciais e configurações locais (Segurança)
 .env
-key.py 
+key.py
+.streamlit/config.toml
+.streamlit/secrets.toml
 
-# Opcional: Banco vetorial (Se preferir recriar rodando o script no note)
-# data/chroma_db/
+# Logs do sistema
+logs/
+*.log
+
+# Scripts de testes e rascunhos locais
+testar_rag.py
+teste_de_ferramenta.py
+main.py
+
+# Banco vetorial e arquivos de memória gerados em execução
+# (Opcional: o professor vai recriar o banco rodando o indexar.py)
+data/chroma_db/

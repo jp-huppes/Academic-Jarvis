@@ -1,98 +1,37 @@
 [
-  {
-    "id": 1,
-    "descricao": "Ler artigo sobre RAG e Embeddings",
-    "prazo": "2026-05-20",
-    "status": "pendente"
-  },
-  {
-    "id": 2,
-    "descricao": "Configurar ambiente virtual e GitHub",
-    "prazo": "2026-05-18",
-    "status": "concluida"
-  },
-  {
-    "id": 3,
-    "descricao": "Fazer lista de exercícios de IA",
-    "prazo": "2026-05-21",
-    "status": "pendente"
-  },
-  {
-    "id": 4,
-    "descricao": "Estudar modelo relacional para BD",
-    "prazo": "2026-05-22",
-    "status": "pendente"
-  },
-  {
-    "id": 5,
-    "descricao": "Implementar tool calling no projeto",
-    "prazo": "2026-05-24",
-    "status": "pendente"
-  },
-  {
-    "id": 6,
-    "descricao": "Revisar matéria de Redes para a prova",
-    "prazo": "2026-05-23",
-    "status": "pendente"
-  },
-  {
-    "id": 7,
-    "descricao": "Testar API do Gemma 12B localmente",
-    "prazo": "2026-05-19",
-    "status": "concluida"
-  },
-  {
-    "id": 8,
-    "descricao": "Escrever README inicial do repositório",
-    "prazo": "2026-05-19",
-    "status": "concluida"
-  },
-  {
-    "id": 9,
-    "descricao": "Preparar apresentação de Eng. de Software",
-    "prazo": "2026-05-28",
-    "status": "pendente"
-  },
-  {
-    "id": 10,
-    "descricao": "Submeter baseline do Trabalho 1",
-    "prazo": "2026-05-30",
-    "status": "pendente"
-  },
-  {
-    "id": 11,
-    "descricao": "Estudar sistema de Tool Calling",
-    "prazo": "2026-05-25",
-    "status": "concluida"
-  },
-  {
-    "id": 12,
-    "descricao": "Estudar Banco de Dados",
-    "prazo": "2026-05-29",
-    "status": "pendente"
-  },
-  {
-    "id": 13,
-    "descricao": "Estudar Banco de Dados",
-    "prazo": "2026-05-29",
-    "status": "pendente"
-  },
-  {
-    "id": 14,
-    "descricao": "Estudar Banco de Dados",
-    "prazo": "2026-05-29",
-    "status": "pendente"
-  },
-  {
-    "id": 15,
-    "descricao": "Estudar Banco de Dados",
-    "prazo": "2026-05-29",
-    "status": "pendente"
-  },
-  {
-    "id": 16,
-    "descricao": "Estudar Banco de Dados",
-    "prazo": "2026-05-29",
-    "status": "pendente"
-  }
+    {
+        "id": "1",
+        "titulo": "Entrega do Trabalho 1 (JARVIS)",
+        "prazo": "2026-05-25",
+        "concluida": false,
+        "descricao": "Enviar o código do main.py e os módulos do RAG e ferramentas."
+    },
+    {
+        "id": "2",
+        "titulo": "Estudar Embeddings e Chunks para o RAG",
+        "prazo": "2026-05-27",
+        "concluida": false,
+        "descricao": "Revisar o material da pasta RAG para a apresentação."
+    },
+    {
+        "id": "3",
+        "titulo": "Configurar o ambiente virtual (.venv)",
+        "prazo": "2026-05-23",
+        "concluida": true,
+        "descricao": "Instalar dependências do requirements.txt e testar chaves."
+    },
+    {
+        "id": "4",
+        "titulo": "Atividade LFA 4",
+        "prazo": "2026-05-27",
+        "concluida": false,
+        "descricao": "Enviar a atividade de LFA 4"
+    },
+    {
+        "id": "5",
+        "titulo": "Aula Probabilidade e Estatistica",
+        "prazo": "2026-05-27",
+        "concluida": false,
+        "descricao": "Aula de Probabilidade e Estatística"
+    }
 ]
