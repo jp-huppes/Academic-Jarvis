@@ -34,67 +34,75 @@ Certifique-se de ter o **Python 3.10 ou superior** instalado em sua máquina.
    git clone [https://github.com/jp-huppes/Academic-Jarvis.git](https://github.com/jp-huppes/Academic-Jarvis.git)
    cd Academic-Jarvis
 
-2. **Instale dependências:**
-    ```bash
-    pip install -r requirements.txt
-    
-3. **Variaveis**
-   Crie um arquivo chamado .env na raiz do projeto e insira a sua credencial de acesso:
-       API_KEY = "Sua_Chave_Aqui"
+Instale as dependências:
 
-4. **Inicialização**
+Bash
+pip install -r requirements.txt
+Configuração das Variáveis de Ambiente:
+Crie um arquivo chamado .env na raiz do projeto e insira a sua credencial de acesso:
 
-   Antes de rodar o assistente pela primeira vez, processe os PDFs locais executando o script de ingestão:
-      ```bash
-      python indexar.py 
-   
-   Então, para abrir a interface gráfica web via navegador:
-      ```bash
-       python -B -m streamlit run app.py
-   Caso queira interagir com o assistente diretamente pelo terminal:
-      ```bash
-      python main.py
+Snippet de código
+API_KEY="Sua_Chave_Aqui"
+Inicialização:
+Antes de rodar o assistente pela primeira vez, processe os PDFs locais executando o script de ingestão:
 
-### Documentação do Dataset
+Bash
+python indexar.py 
+Para abrir a interface gráfica web via navegador (Streamlit):
 
- 1. **Origem e Composição dos Dados**
-   A pasta /data reúne uma biblioteca técnica com mais de 10 documentos acadêmicos que cobre o núclos de diciplinas do curso. Entre as principais referências indexadas estão:
-      - computer_networking_top-down_aproach.pdf (Redes de Computadores - Kurose)
-      - Machine_Learning.pdf (Aprendizado de Máquina - Tom Mitchell)
-      - algoritmos-teoria-e-partica-thomas-cormen.pdf (Algoritmos - Thomas Cormen)
-      - Deep+Learning+Ian+Goodfellow.pdf (Deep Learning - Ian Goodfellow)
-      - 2020-Scrum-Guide-Portuguese-European-As_regras_do_jogo.pdf (Metodologias Ágeis)
+Bash
+python -B -m streamlit run app.py
+Caso queira interagir com o assistente diretamente pelo terminal:
 
-   Enquanto outros livros e notas de aula cobrem Álgebra Linear, Teoria da Computação e Linguagens de Programação (C++ e Java).
+Bash
+python main.py
 
-   2. **Tipo de Dados**
-      Em sua maioria os arquivos tetuais tem formato em PDF e resumos em TXT.
+4. Documentação do Dataset
+Origem e Composição dos Dados
+A pasta /data reúne uma biblioteca técnica com mais de 10 documentos acadêmicos que cobrem o núcleo de disciplinas do curso. Entre as principais referências indexadas estão:
 
-   3. **Limitações Conhecidas**
-      Restrição Textual —— a extração via 'pdfplumber' lê estritamente caracteres de texto plano. Diagramas de arquitetura, imagens de redes, gráficos de funções e tabelas complexas não são indexados na base vetorial.
-      Alinhamento Linguístico —— Embora o modelo de embeddings seja multilíngue, os livros base estão em inglês e as requisições do chat ocorrem em português, o que pode gerar pequenas distorções de proximidade semântica em termos técnicos muito específicos.
-   
-   4. **Estratégia de Chunking (Fragmentação)**
-      Para preservar o contexto sem estourar a janela de tokens do modelo de embeddings:
-      Algoritmo —— RecursiveCharacterTextSplitter (LangChain), dividindo os textos de forma inteligente ao priorizar quebras de parágrafos e pontos finais.
-      
-      Configuração —— Blocos fixos de 1000 caracteres com sobreposição (overlap) de 200 caracteres entre pedaços vizinhos, garantindo a continuidade de sentenças divididas nas bordas.
+computer_networking_top-down_aproach.pdf (Redes de Computadores - Kurose)
 
-### Estrutura de Pastas e Arquivos
+Machine_Learning.pdf (Aprendizado de Máquina - Tom Mitchell)
 
+algoritmos-teoria-e-partica-thomas-cormen.pdf (Algoritmos - Thomas Cormen)
+
+Deep+Learning+Ian+Goodfellow.pdf (Deep Learning - Ian Goodfellow)
+
+2020-Scrum-Guide-Portuguese-European-As_regras_do_jogo.pdf (Metodologias Ágeis)
+
+Outros livros e notas de aula cobrem Álgebra Linear, Teoria da Computação e Linguagens de Programação (C++ e Java).
+
+Tipo de Dados
+Em sua maioria, os arquivos textuais estão no formato PDF e os resumos em TXT.
+
+Limitações Conhecidas
+Restrição Textual: A extração via pdfplumber lê estritamente caracteres de texto plano. Diagramas de arquitetura, imagens de redes, gráficos de funções e tabelas complexas não são indexados na base vetorial.
+
+Alinhamento Linguístico: Embora o modelo de embeddings seja multilíngue, os livros-base estão em inglês e as requisições do chat ocorrem em português, o que pode gerar pequenas distorções de proximidade semântica em termos técnicos muito específicos.
+
+Estratégia de Chunking (Fragmentação)
+Para preservar o contexto sem estourar a janela de tokens do modelo de embeddings:
+
+Algoritmo: RecursiveCharacterTextSplitter (LangChain), dividindo os textos de forma inteligente ao priorizar quebras de parágrafos e pontos finais.
+
+Configuração: Blocos fixos de 1000 caracteres com sobreposição (overlap) de 200 caracteres entre pedaços vizinhos, garantindo a continuidade de sentenças divididas nas bordas.
+
+5. Estrutura de Pastas e Arquivos
+Plaintext
 ├── .streamlit/             # Configurações visuais e de tema do Streamlit
-├── data/                   # Pasta contendo os PDFs originais do Dataset
-│   └── chroma_db/          # [Diretório Local] Banco vetorial gerado pelo indexar.py
-├── logs/                   # Histórico local de execuções e tool calls
-├── memory/                 # Arquivos de persistência de dados 
+├── data/                  # Pasta contendo os PDFs originais do Dataset
+│   └── chroma_db/         # [Diretório Local] Banco vetorial gerado pelo indexar.py
+├── logs/                  # Histórico local de execuções e tool calls
+├── memory/                # Arquivos de persistência de dados 
 ├── rag/
-│   └── pipeline.py         # Arquitetura de busca semântica e recuperação vetorial
+│   └── pipeline.py        # Arquitetura de busca semântica e recuperação vetorial
 ├── tools/
-│   ├── agenda.py           # Funções de backend para controle do calendário
-│   ├── tarefas.py          # Funções de backend para lista de afazeres
-│   ├── estudos.py          # Ferramenta de integração com o módulo de RAG
-│   └── definitions.py      # Esquemas de declaração JSON para o Tool Calling do modelo
-├── app.py                  # Interface gráfica web em Streamlit (Execução Oficial)
-├── indexar.py              # Script automatizado de leitura, chunking e indexação
-├── requirements.txt        # Relação de bibliotecas e dependências de terceiros
-└── README.md               # Documentação principal e instruções de entrega
+│   ├── agenda.py          # Funções de backend para controle do calendário
+│   ├── tarefas.py         # Funções de backend para lista de afazeres
+│   ├── estudos.py         # Ferramenta de integração com o módulo de RAG
+│   └── definitions.py     # Esquemas de declaração JSON para o Tool Calling do modelo
+├── app.py                 # Interface gráfica web em Streamlit (Execução Oficial)
+├── indexar.py             # Script automatizado de leitura, chunking e indexação
+├── requirements.txt       # Relação de bibliotecas e dependências de terceiros
+└── README.md              # Documentação principal e instruções de entrega
