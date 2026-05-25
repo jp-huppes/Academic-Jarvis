@@ -147,7 +147,6 @@ class PipelineRAG:
         )
 
         formatted_sections = []
-        LIMITE_DISTANCIA = 2.50
         
         if results and results['documents'] and results['documents'][0]:
             docs = results['documents'][0]
