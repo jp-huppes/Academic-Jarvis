@@ -23,6 +23,8 @@ O sistema utiliza um modelo de linguagem (LLM) operando como um **Agente Racioci
 * **Orquestrador LLM:** `Gemma-3-12b-it` (via API externa / servidor acadêmico), responsável pelo raciocínio lógico e seleção de ferramentas.
 * **Embeddings (RAG):** `paraphrase-multilingual-MiniLM-L12-v2` rodando 100% localmente com suporte a aceleração por hardware (Nvidia CUDA).
 * **Vector Store:** `ChromaDB` para indexação e persistência dos vetores.
+* **Auxiliador de Arquitetura:** `Claude` para a validação, testes e planejamento do projeto.
+* **Auxiliador de Código:** `Google Gemini` para duvidas e correção de código (sintaxe principalmente).
 
 ---
 
