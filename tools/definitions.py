@@ -112,14 +112,17 @@ DADOS_DAS_FERRAMENTAS = [
         }
     },
     {
-        "nome_ferramenta": "adicione_agenda",
-        "descricao": "Adiciona um novo compromisso na agenda do aluno (como aulas, provas, revisões ou reuniões). Use sempre que o usuário pedir explicitamente para marcar ou agendar algo na agenda acadêmica.",
-        "argumentos": {
-            "data": {"type": "string", "description": "Data do compromisso no formato exato 'AAAA-MM-DD'"},
-            "hora": {"type": "string", "description": "Horário do compromisso no formato exato 'HH:MM'"},
-            "disciplina": {"type": "string", "description": "Nome da matéria, disciplina ou título do compromisso"},
-            "tipo": {"type": "string", "description": "Tipo do evento, obrigatoriamente um destes: 'Aula', 'Prova', 'Trabalho', 'Reunião'"},
-            "local": {"type": "string", "description": "Local opcional do evento (Ex: 'Sala 105, Bloco 1' ou 'Google Meet')"}
+        "type": "function",
+        "function": {
+            "name": "adicione_agenda",
+            "description": "Adiciona um novo compromisso na agenda do aluno (como aulas, provas, revisões ou reuniões). Use sempre que o usuário pedir explicitamente para marcar ou agendar algo na agenda acadêmica.",
+            "parameters": {
+                "data": {"type": "string", "description": "Data do compromisso no formato exato 'AAAA-MM-DD'"},
+                "hora": {"type": "string", "description": "Horário do compromisso no formato exato 'HH:MM'"},
+                "disciplina": {"type": "string", "description": "Nome da matéria, disciplina ou título do compromisso"},
+                "tipo": {"type": "string", "description": "Tipo do evento, obrigatoriamente um destes: 'Aula', 'Prova', 'Trabalho', 'Reunião'"},
+                "local": {"type": "string", "description": "Local opcional do evento (Ex: 'Sala 105, Bloco 1' ou 'Google Meet')"}
+            }
         }
     }
 ]
