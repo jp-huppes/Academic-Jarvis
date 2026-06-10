@@ -29,7 +29,7 @@ import logging
 from datetime import datetime, date
 
 import streamlit as st
-import pandas as pd  # MOVIDO PARA O TOPO: Evita NameError na Sidebar
+import pandas as pd 
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -116,9 +116,10 @@ _inicialize_state()
 # ─────────────────────────────────────────────────────────────
 
 def _mapeador() -> dict:
-    from tools.agenda  import consulte_agenda, consulte_semana, adicione_agenda            # type: ignore
-    from tools.tarefas import liste_tarefas, adicione_tarefas, conclua_tarefa  # type: ignore
-    from tools.estudos import busque_material_rag                          # type: ignore
+    from tools.agenda  import consulte_agenda, consulte_semana, adicione_agenda            
+    from tools.tarefas import liste_tarefas, adicione_tarefas, conclua_tarefa 
+    from tools.estudos import busque_material_rag                          
+    from tools.estudos import busque_material_rag, monte_plano_estudos 
     return {
         "consulte_agenda":     consulte_agenda,
         "consulte_semana":     consulte_semana,
@@ -126,7 +127,8 @@ def _mapeador() -> dict:
         "liste_tarefas":       liste_tarefas,
         "adicione_tarefas":    adicione_tarefas,
         "conclua_tarefa":      conclua_tarefa,
-        "busque_material_rag": busque_material_rag
+        "busque_material_rag": busque_material_rag,
+        "monte_plano_estudos": monte_plano_estudos
     }
 
 

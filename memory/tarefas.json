@@ -3,7 +3,7 @@
         "id": "1",
         "titulo": "Entrega do Trabalho 1 (JARVIS)",
         "prazo": "2026-05-25",
-        "concluida": false,
+        "concluida": true,
         "descricao": "Enviar o código do main.py e os módulos do RAG e ferramentas."
     },
     {

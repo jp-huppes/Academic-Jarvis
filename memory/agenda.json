@@ -131,5 +131,12 @@
         "disciplina": "Probabilidade e Estatística",
         "tipo": "Aula",
         "local": "Bloco 1 Sala 102"
+    },
+    {
+        "data": "2026-05-26",
+        "hora": "07:00",
+        "disciplina": "Algebra Linear",
+        "tipo": "Aula",
+        "local": "Bloco 1 Sala 111"
     }
 ]

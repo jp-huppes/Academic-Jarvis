@@ -154,8 +154,7 @@ class PipelineRAG:
             distances = results['distances'][0]
 
             for doc, meta, dist in zip(docs, metas, distances):
-            
-            fonte = meta.get('fonte', meta.get('arquivo', 'Livro Local'))
-            formatted_sections.append(f"[Origem: {fonte}]\n{doc}")
+                fonte = meta.get('fonte', meta.get('arquivo', 'Livro Local'))
+                formatted_sections.append(f"[Origem: {fonte}]\n{doc}")
                     
         return formatted_sections
