@@ -117,11 +117,36 @@ DADOS_DAS_FERRAMENTAS = [
             "name": "adicione_agenda",
             "description": "Adiciona um novo compromisso na agenda do aluno (como aulas, provas, revisões ou reuniões). Use sempre que o usuário pedir explicitamente para marcar ou agendar algo na agenda acadêmica.",
             "parameters": {
-                "data": {"type": "string", "description": "Data do compromisso no formato exato 'AAAA-MM-DD'"},
-                "hora": {"type": "string", "description": "Horário do compromisso no formato exato 'HH:MM'"},
-                "disciplina": {"type": "string", "description": "Nome da matéria, disciplina ou título do compromisso"},
-                "tipo": {"type": "string", "description": "Tipo do evento, obrigatoriamente um destes: 'Aula', 'Prova', 'Trabalho', 'Reunião'"},
-                "local": {"type": "string", "description": "Local opcional do evento (Ex: 'Sala 105, Bloco 1' ou 'Google Meet')"}
+                "type": "object",
+                "properties": {
+                    "data": {"type": "string", "description": "Data do compromisso no formato exato 'AAAA-MM-DD'"},
+                    "hora": {"type": "string", "description": "Horário do compromisso no formato exato 'HH:MM'"},
+                    "disciplina": {"type": "string", "description": "Nome da matéria, disciplina ou título do compromisso"},
+                    "tipo": {"type": "string", "description": "Tipo do evento, obrigatoriamente um destes: 'Aula', 'Prova', 'Trabalho', 'Reunião'"},
+                    "local": {"type": "string", "description": "Local opcional do evento (Ex: 'Sala 105, Bloco 1' ou 'Google Meet')"}
+                },
+                "required": ["data", "hora", "disciplina", "tipo"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "monte_plano_estudos",
+            "description": "Gera um plano de estudos inteligente e personalizado combinando as pendências de tarefas do aluno, os compromissos da agenda e os tópicos teóricos extraídos dos livros via RAG.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "disciplina": {
+                        "type": "string",
+                        "description": "O nome da disciplina ou matéria para a qual o plano deve ser gerado (Ex: 'Redes', 'Algoritmos')."
+                    },
+                    "data_prova": {
+                        "type": "string",
+                        "description": "Opcional. A data da prova no formato 'AAAA-MM-DD' para organizar um cronograma regressivo até o dia do exame."
+                    }
+                },
+                "required": ["disciplina"]
             }
         }
     }
