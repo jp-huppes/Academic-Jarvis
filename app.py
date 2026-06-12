@@ -1,22 +1,6 @@
 """
 app.py — Interface JARVIS Acadêmico
-Frontend Streamlit para o assistente com RAG + Tool Calling.
-
-Estrutura do projeto esperada:
-    jarvis/
-    ├── app.py              <- este arquivo
-    ├── .env                <- API_KEY=...
-    ├── memory/
-    │   ├── agenda.json
-    │   └── tarefas.json
-    ├── logs/
-    ├── rag/pipeline.py
-    └── tools/
-        ├── agenda.py       -> consulte_agenda, consulte_semana
-        ├── tarefas.py      -> liste_tarefas, adicione_tarefas, conclua_tarefa
-        ├── estudos.py      -> busque_material_rag
-        ├── logger.py       -> registre_log
-        └── definitions.py  -> DADOS_DAS_FERRAMENTAS
+Frontend Streamlit para o assistente com RAG + Tool Calling e Quiz Interativo.
 """
 
 # ─────────────────────────────────────────────────────────────
@@ -73,11 +57,11 @@ def obtenha_rag():
 
 
 # ─────────────────────────────────────────────────────────────
-# SEÇÃO 2 — SESSION STATE
+# SEÇÃO 2 — SESSION STATE (COM MOTOR DO QUIZ)
 # ─────────────────────────────────────────────────────────────
 
 def _system_prompt() -> str:
-    """Gera o prompt de sistema com data e ferramentas (idêntico ao main.py)."""
+    """Gera o prompt de sistema com data e ferramentas."""
     from tools.definitions import DADOS_DAS_FERRAMENTAS  # type: ignore
     hoje = datetime.now().strftime("%A, %d de %B de %Y")
     tools_json = json.dumps(DADOS_DAS_FERRAMENTAS, indent=2, ensure_ascii=False)
@@ -95,17 +79,29 @@ def _system_prompt() -> str:
 
 
 def _inicialize_state():
+    # Estados do Chat
     if "historico" not in st.session_state:
         st.session_state.historico = [{"role": "system", "content": _system_prompt()}]
-
     if "mensagens_tela" not in st.session_state:
         st.session_state.mensagens_tela = []
-
     if "logs_ferramentas" not in st.session_state:
         st.session_state.logs_ferramentas = []
-
     if "ultima_fontes_rag" not in st.session_state:
         st.session_state.ultima_fontes_rag = []
+        
+    # Estados da Máquina do Quiz (Estilo Gemini)
+    if "quiz_step" not in st.session_state:
+        st.session_state.quiz_step = "config" # config -> gerando -> jogando -> resultado
+    if "quiz_data" not in st.session_state:
+        st.session_state.quiz_data = []       # Lista de JSONs com as perguntas
+    if "quiz_index" not in st.session_state:
+        st.session_state.quiz_index = 0       # Qual pergunta estamos (0, 1, 2...)
+    if "quiz_score" not in st.session_state:
+        st.session_state.quiz_score = 0       # Acertos
+    if "quiz_answered" not in st.session_state:
+        st.session_state.quiz_answered = False # Bloqueia duplo clique
+    if "quiz_selected_letter" not in st.session_state:
+        st.session_state.quiz_selected_letter = None # Letra que o aluno marcou
 
 
 _inicialize_state()
@@ -118,8 +114,8 @@ _inicialize_state()
 def _mapeador() -> dict:
     from tools.agenda  import consulte_agenda, consulte_semana, adicione_agenda            
     from tools.tarefas import liste_tarefas, adicione_tarefas, conclua_tarefa 
-    from tools.estudos import busque_material_rag                          
     from tools.estudos import busque_material_rag, monte_plano_estudos 
+    from tools.quiz import prepare_contexto_quiz
     return {
         "consulte_agenda":     consulte_agenda,
         "consulte_semana":     consulte_semana,
@@ -128,7 +124,8 @@ def _mapeador() -> dict:
         "adicione_tarefas":    adicione_tarefas,
         "conclua_tarefa":      conclua_tarefa,
         "busque_material_rag": busque_material_rag,
-        "monte_plano_estudos": monte_plano_estudos
+        "monte_plano_estudos": monte_plano_estudos,
+        "prepare_contexto_quiz": prepare_contexto_quiz
     }
 
 
@@ -140,7 +137,32 @@ def _execute_tool(nome: str, args: dict) -> tuple:
         return f"[Ferramenta desconhecida: {nome}]", fontes_rag
 
     try:
+        # ── INTERCEPTADOR DO QUIZ DISPARADO PELO CHAT ─────────────────
+        if nome == "prepare_contexto_quiz":
+            disciplina = args.get("disciplina", "Geral")
+            
+            # 1. Coleta dados do RAG e tarefas
+            prompt_do_quiz = mapa["prepare_contexto_quiz"](disciplina, pipeline_rag=obtenha_rag())
+            
+            # 2. Faz o bypass para a LLM criar o JSON das perguntas
+            resposta_llm = _chame_llm([{"role": "system", "content": prompt_do_quiz}])
+            texto_limpo = resposta_llm.replace("```json", "").replace("```", "").strip()
+            dados_quiz = json.loads(texto_limpo)
+            
+            # 3. Configura a máquina de estados do Quiz instantaneamente
+            st.session_state.quiz_data = dados_quiz
+            st.session_state.quiz_step = "jogando"
+            st.session_state.quiz_index = 0
+            st.session_state.quiz_score = 0
+            st.session_state.quiz_answered = False
+            st.session_state.quiz_selected_letter = None
+            
+            # Mensagem que o JARVIS usará para consolidar a resposta final na tela
+            return f"Sucesso: O quiz de '{disciplina}' foi gerado e carregado na aba 'Quiz Prático'. Oriente o usuário a clicar lá.", fontes_rag
+        
+        # Fluxo normal para as outras ferramentas do sistema
         resultado = mapa[nome](**args)
+        
     except Exception as exc:
         logging.exception(f"Erro ao executar {nome}")
         return f"[Erro ao executar {nome}: {exc}]", fontes_rag
@@ -150,7 +172,6 @@ def _execute_tool(nome: str, args: dict) -> tuple:
         return json.dumps(resultado, ensure_ascii=False), fontes_rag
 
     return json.dumps(resultado, ensure_ascii=False, default=str), fontes_rag
-
 
 def _registre_log(nome: str, args: dict, resultado: str):
     try:
@@ -177,13 +198,13 @@ def _chame_llm(mensagens: list) -> str:
 
     try:
         client = OpenAI(
-            base_url="https://llm.liaufms.org/v1/gemma-3-12b-it",
-            api_key=os.getenv("API_KEY", ""),
+            base_url= 'https://llm.liaufms.org/v1/qwen2-5-14b-instruct-awq',
+            api_key=os.getenv("API_KEY", "")
         )
 
         resposta = client.chat.completions.create(
-            model="google/gemma-3-12b-it",
-            messages=mensagens,
+            model="Qwen/Qwen2.5-14B-Instruct-AWQ",
+            messages=mensagens
         )
 
         return resposta.choices[0].message.content or "O Jarvis não retornou nenhuma resposta."
@@ -228,7 +249,11 @@ def processe_mensagem(user_message: str) -> tuple:
         if len(st.session_state.historico) > 10:
             ultimas_msgs = [m["content"] for m in st.session_state.historico[-4:]]
             if any(nome in str(m) for m in ultimas_msgs) and i > 1:
-                return "Interrompido: O assistente entrou em loop chamando a mesma ferramenta repetidamente.", fontes_acumuladas
+                msg_erro_loop = "Interrompido: O assistente entrou em loop chamando a mesma ferramenta repetidamente."
+                st.session_state.historico.append({"role": "assistant", "content": msg_erro_loop})
+                return msg_erro_loop, fontes_acumuladas
+
+
 
         resultado_str, fontes_rag = _execute_tool(nome, args)
         fontes_acumuladas.extend(fontes_rag)
@@ -256,7 +281,6 @@ def _carregue_tarefas_pendentes() -> list:
     except Exception:
         return []
 
-
 @st.cache_data(ttl=30)
 def _carregue_tarefas_concluidas() -> list:
     try:
@@ -265,7 +289,6 @@ def _carregue_tarefas_concluidas() -> list:
     except Exception:
         return []
 
-
 @st.cache_data(ttl=30)
 def _carregue_eventos_semana() -> list:
     try:
@@ -273,7 +296,6 @@ def _carregue_eventos_semana() -> list:
         return consulte_semana()
     except Exception:
         return []
-
 
 def _calcule_metricas(pendentes: list, concluidas: list) -> dict:
     vencendo = 0
@@ -291,7 +313,6 @@ def _calcule_metricas(pendentes: list, concluidas: list) -> dict:
         "vencendo_em_2_dias": vencendo,
     }
 
-
 def _tarefas_urgentes(pendentes: list) -> list:
     urgentes = []
     for t in pendentes:
@@ -305,7 +326,7 @@ def _tarefas_urgentes(pendentes: list) -> list:
 
 
 # ─────────────────────────────────────────────────────────────
-# CSS PERSONALIZADO
+# CSS PERSONALIZADO (Adicionado temas para o Quiz)
 # ─────────────────────────────────────────────────────────────
 
 st.markdown("""
@@ -348,6 +369,23 @@ footer     {visibility: hidden;}
 
 .status-on  { color: #22C55E; font-weight: 700; }
 .status-off { color: #EF4444; font-weight: 700; }
+
+/* Estilização para a Área de Feedback do Quiz */
+.quiz-feedback {
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+.quiz-correct {
+    background: rgba(34, 197, 94, 0.1);
+    border-left: 4px solid #22C55E;
+}
+.quiz-incorrect {
+    background: rgba(239, 68, 68, 0.1);
+    border-left: 4px solid #EF4444;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -370,7 +408,6 @@ with st.sidebar:
         st.markdown('<span class="status-off">● API KEY ausente</span>', unsafe_allow_html=True)
 
     try:
-        # Só inicializa o RAG quando o Streamlit estiver pronto
         n_docs = obtenha_rag().collection.count()
         st.caption(f"📄 {n_docs} fragmentos indexados no RAG")
     except Exception:
@@ -396,12 +433,10 @@ with st.sidebar:
     # ── Bloco C: Agenda Compacta na Sidebar ────────────────────
     st.markdown('<p class="sidebar-label">📅 Próximos Compromissos</p>', unsafe_allow_html=True)
     
-    # CORREÇÃO: Puxa os dados da agenda que antes causavam NameError
     eventos_sidebar = _carregue_eventos_semana()
 
     if eventos_sidebar:
         df_ev_side = pd.DataFrame(eventos_sidebar)
-        
         for col in ["data", "hora", "disciplina", "tipo"]:
             if col not in df_ev_side.columns:
                 df_ev_side[col] = ""
@@ -431,7 +466,8 @@ with st.sidebar:
 # SEÇÃO 4 — ÁREA PRINCIPAL COM TABS
 # ─────────────────────────────────────────────────────────────
 
-tab_chat, tab_dashboard = st.tabs(["💬 Chat", "📊 Dashboard"])
+# ADICIONADA A TERCEIRA ABA (🧠 Quiz)
+tab_chat, tab_dashboard, tab_quiz = st.tabs(["💬 Chat", "📊 Dashboard", "🧠 Quiz Prático"])
 
 
 # ════════════════════════════════════════════════════════════
@@ -439,7 +475,6 @@ tab_chat, tab_dashboard = st.tabs(["💬 Chat", "📊 Dashboard"])
 # ════════════════════════════════════════════════════════════
 
 with tab_chat:
-
     pendentes_cache = _carregue_tarefas_pendentes()
 
     if not st.session_state.mensagens_tela:
@@ -451,7 +486,6 @@ with tab_chat:
     for msg in st.session_state.mensagens_tela:
         with st.chat_message(msg["role"]):
             st.markdown(msg["content"])
-
             fontes = msg.get("fontes_rag", [])
             if fontes:
                 with st.expander("📚 Fontes consultadas pelo RAG"):
@@ -465,7 +499,6 @@ with tab_chat:
                         )
 
     if user_message := st.chat_input("Fale com o JARVIS…"):
-
         st.session_state.mensagens_tela.append({"role": "user", "content": user_message})
         with st.chat_message("user"):
             st.markdown(user_message)
@@ -522,22 +555,18 @@ with tab_chat:
 # ════════════════════════════════════════════════════════════
 
 with tab_dashboard:
-
     pendentes  = _carregue_tarefas_pendentes()
     concluidas = _carregue_tarefas_concluidas()
     eventos    = _carregue_eventos_semana()
     metricas   = _calcule_metricas(pendentes, concluidas)
 
     st.subheader("📊 Visão Geral Acadêmica")
-
     col1, col2, col3 = st.columns(3)
 
     with col1:
         st.metric("✅ Concluídas", metricas["concluidas"])
-
     with col2:
         st.metric("⏳ Pendentes", metricas["pendentes"])
-
     with col3:
         vencendo = metricas["vencendo_em_2_dias"]
         st.metric(
@@ -557,7 +586,6 @@ with tab_dashboard:
     st.progress(prog, text=f"{n_conc} de {total} tarefas concluídas — {int(prog * 100)}%")
 
     st.divider()
-
     st.markdown("**📅 Agenda da Semana**")
 
     if eventos:
@@ -587,12 +615,10 @@ with tab_dashboard:
         st.info("Nenhum evento encontrado para esta semana.")
 
     st.divider()
-
     st.markdown("**📋 Tarefas Pendentes**")
 
     if pendentes:
         df_t = pd.DataFrame(pendentes)
-        
         for col in ["id", "descricao", "prazo", "status"]:
             if col not in df_t.columns:
                 df_t[col] = ""
@@ -626,3 +652,225 @@ with tab_dashboard:
         st.caption("🔴 Vencida  ·  🟡 Urgente (≤ 2 dias)  ·  🟢 Ok")
     else:
         st.success("🎉 Nenhuma tarefa pendente! Tudo em dia.")
+
+
+# ════════════════════════════════════════════════════════════
+# TAB 3 — O NOVO MOTOR DE QUIZ (ESTILO GEMINI)
+# ════════════════════════════════════════════════════════════
+
+with tab_quiz:
+    # 1. TELA DE CONFIGURAÇÃO
+    if st.session_state.quiz_step == "config":
+        st.subheader("🧠 Treinamento de Active Recall")
+        st.markdown("O Jarvis extrairá os conceitos principais do seu banco de dados (RAG) para montar um simulado dinâmico.")
+        
+        disciplina_alvo = st.text_input("Qual disciplina você quer praticar agora?", placeholder="Ex: Redes de Computadores, IA, Cálculo...")
+        
+        if st.button("Gerar Simulado Personalizado", type="primary"):
+            if not disciplina_alvo.strip():
+                st.warning("Por favor, digite o nome da disciplina para começarmos.")
+            else:
+                with st.spinner(f"Consultando materiais de '{disciplina_alvo}' no RAG e criando questões..."):
+                    try:
+                        from tools.quiz import prepare_contexto_quiz
+                        prompt_do_quiz = prepare_contexto_quiz(disciplina_alvo, pipeline_rag=obtenha_rag())
+                        
+                        # Chama a nova LLM configurada
+                        resposta_llm = _chame_llm([{"role": "system", "content": prompt_do_quiz}])
+                        
+                        # Filtro Regex protetor para isolar o JSON puro
+                        texto_limpo = resposta_llm.replace("```json", "").replace("```", "").strip()
+                        
+                        import re
+                        match = re.search(r'\[.*\]', texto_limpo, re.DOTALL)
+                        if match:
+                            texto_limpo = match.group(0)
+                        
+                        dados_quiz = json.loads(texto_limpo)
+                        
+                        # Alimenta os estados da aplicação
+                        st.session_state.quiz_data = dados_quiz
+                        st.session_state.quiz_step = "jogando"
+                        st.session_state.quiz_index = 0
+                        st.session_state.quiz_score = 0
+                        st.session_state.quiz_answered = False
+                        st.session_state.quiz_selected_letter = None
+                        
+                        st.rerun() 
+                        
+                    except json.JSONDecodeError as e:
+                        st.error("O assistente não conseguiu formatar o quiz corretamente.")
+                        # Área de segurança caso o novo modelo faça alguma formatação bizarra
+                        with st.expander("🛠️ DEBUG: Ver Resposta Bruta da LLM"):
+                            st.error(f"Erro do Python: {e}")
+                            st.markdown("**Resposta original completa enviada pela LLM:**")
+                            st.text(resposta_llm)
+                            st.markdown("**Texto que o sistema tentou converter em JSON:**")
+                            st.code(texto_limpo, language="json")
+                    except Exception as e:
+                        st.error(f"Erro ao gerar o quiz: {e}")
+            if not disciplina_alvo.strip():
+                st.warning("Por favor, digite o nome da disciplina para começarmos.")
+            else:
+                with st.spinner(f"Consultando materiais de '{disciplina_alvo}' no RAG e criando questões..."):
+                    try:
+                        from tools.quiz import prepare_contexto_quiz
+                        prompt_do_quiz = prepare_contexto_quiz(disciplina_alvo, pipeline_rag=obtenha_rag())
+                        
+                        # 2. Chama a LLM passando apenas o contexto do quiz
+                        resposta_llm = _chame_llm([{"role": "system", "content": prompt_do_quiz}])
+                        
+                        # 3. Parse inteligente: remove crases e busca estritamente o bloco de lista JSON
+                        texto_limpo = resposta_llm.replace("```json", "").replace("```", "").strip()
+                        
+                        import re
+                        # Tenta extrair apenas o conteúdo que está entre colchetes [ ]
+                        match = re.search(r'\[.*\]', texto_limpo, re.DOTALL)
+                        if match:
+                            texto_limpo = match.group(0)
+                        
+                        dados_quiz = json.loads(texto_limpo)
+                        
+                        # 4. Alimenta o estado
+                        st.session_state.quiz_data = dados_quiz
+                        st.session_state.quiz_step = "jogando"
+                        st.session_state.quiz_index = 0
+                        st.session_state.quiz_score = 0
+                        st.session_state.quiz_answered = False
+                        st.session_state.quiz_selected_letter = None
+                        
+                        st.rerun() # Atualiza a tela imediatamente
+                        
+                    except json.JSONDecodeError as e:
+                        st.error("O assistente não conseguiu formatar o quiz corretamente.")
+                        # --- ÁREA DE DEBUG ADICIONADA ---
+                        with st.expander("🛠️ DEBUG: Ver Resposta Bruta da LLM"):
+                            st.error(f"Erro do Python: {e}")
+                            st.markdown("**Resposta original completa enviada pela LLM:**")
+                            st.text(resposta_llm)
+                            st.markdown("**Texto que o sistema tentou converter em JSON:**")
+                            st.code(texto_limpo, language="json")
+                            
+                    except Exception as e:
+                        st.error(f"Erro ao gerar o quiz: {e}")
+                        
+                    except json.JSONDecodeError:
+                        st.error("O assistente não conseguiu formatar o quiz corretamente. Tente novamente.")
+                    except Exception as e:
+                        st.error(f"Erro ao gerar o quiz: {e}")
+
+    # 2. TELA DE JOGO (PERGUNTA ATIVA)
+    elif st.session_state.quiz_step == "jogando":
+        # Dados da rodada
+        total_q = len(st.session_state.quiz_data)
+        if total_q == 0:
+            st.error("O simulado foi gerado sem perguntas. Tente novamente.")
+            st.session_state.quiz_step = "config"
+            st.rerun()
+        idx = st.session_state.quiz_index
+        questao_atual = st.session_state.quiz_data[idx]
+        
+        # Cabeçalho: Barra de Progresso e Placar estilo Gemini
+        col_prog, col_score = st.columns([4, 1])
+        with col_prog:
+            # st.progress aceita float de 0.0 a 1.0
+            st.progress(idx / total_q, text="Seu progresso")
+        with col_score:
+            st.markdown(f"**Questão {idx + 1} de {total_q}** | Acertos: **{st.session_state.quiz_score}**")
+        
+        st.divider()
+        
+        # Corpo da Pergunta
+        st.markdown(f"### {idx + 1}. {questao_atual['pergunta']}")
+        st.write("") # Espaçador
+        
+        # Preparando as alternativas para o select
+        opcoes_dict = questao_atual["alternativas"]
+        lista_opcoes = [f"{letra}) {texto}" for letra, texto in opcoes_dict.items()]
+        
+        # Renderização Dinâmica (Ainda não respondeu VS Já respondeu)
+        if not st.session_state.quiz_answered:
+            # Tela interativa para escolher
+            escolha = st.radio("Escolha uma alternativa:", lista_opcoes, index=None, label_visibility="collapsed", key=f"quiz_radio_{idx}")
+            
+            st.write("")
+            if st.button("Confirmar Resposta"):
+                if escolha:
+                    # Salva a letra escolhida (A, B, C ou D)
+                    st.session_state.quiz_selected_letter = escolha.split(")")[0]
+                    st.session_state.quiz_answered = True
+                    
+                    # Checa acerto
+                    if st.session_state.quiz_selected_letter == questao_atual["resposta_correta"]:
+                        st.session_state.quiz_score += 1
+                    
+                    st.rerun()
+                else:
+                    st.warning("⚠️ Selecione uma alternativa antes de confirmar!")
+        
+        else:
+            # Já respondeu: Mostra a escolha desativada para manter layout
+            idx_escolhido = 0
+            for i, opt in enumerate(lista_opcoes):
+                if opt.startswith(st.session_state.quiz_selected_letter):
+                    idx_escolhido = i
+                    break
+                    
+            st.radio("Sua escolha:", lista_opcoes, index=idx_escolhido, disabled=True, label_visibility="collapsed", key=f"quiz_radio_disp_{idx}")
+            
+            # Caixa de Feedback Colorida
+            letra_certa = questao_atual["resposta_correta"]
+            
+            if st.session_state.quiz_selected_letter == letra_certa:
+                st.markdown(
+                    f'<div class="quiz-feedback quiz-correct">'
+                    f'<strong>✨ Correto!</strong><br><br>{questao_atual["explicacao"]}'
+                    f'</div>', 
+                    unsafe_allow_html=True
+                )
+            else:
+                st.markdown(
+                    f'<div class="quiz-feedback quiz-incorrect">'
+                    f'<strong>❌ Incorreto.</strong> A alternativa certa era a <b>{letra_certa}</b>.<br><br>'
+                    f'{questao_atual["explicacao"]}'
+                    f'</div>', 
+                    unsafe_allow_html=True
+                )
+            
+            # Botão de Navegação
+            if idx < total_q - 1:
+                if st.button("Próxima Pergunta", type="primary"):
+                    st.session_state.quiz_index += 1
+                    st.session_state.quiz_answered = False
+                    st.session_state.quiz_selected_letter = None
+                    st.rerun()
+            else:
+                if st.button("Ver Resultados Finais", type="primary"):
+                    st.session_state.quiz_step = "resultado"
+                    st.rerun()
+
+    # 3. TELA DE RESULTADO
+    elif st.session_state.quiz_step == "resultado":
+        st.balloons()
+        st.subheader("🏁 Simulado Concluído!")
+        
+        total = len(st.session_state.quiz_data)
+        acertos = st.session_state.quiz_score
+        aproveitamento = (acertos / total) * 100
+        
+        col1, col2, col3 = st.columns(3)
+        col1.metric("Acertos", f"{acertos} / {total}")
+        col2.metric("Aproveitamento", f"{aproveitamento:.0f}%")
+        
+        st.divider()
+        if aproveitamento == 100:
+            st.success("Perfeito! Você dominou o material extraído do RAG.")
+        elif aproveitamento >= 60:
+            st.info("Muito bom! Mas ainda há espaço para revisar alguns conceitos na aba de Chat.")
+        else:
+            st.warning("Foi um bom treino, mas é recomendado pedir ao Jarvis um plano de estudos focado nesses erros.")
+            
+        if st.button("Gerar Novo Quiz"):
+            # Reseta a máquina de estados
+            st.session_state.quiz_step = "config"
+            st.rerun()
