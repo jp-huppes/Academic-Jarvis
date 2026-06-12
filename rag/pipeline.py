@@ -10,7 +10,7 @@ CAMINHO_CHROMA = "data/chroma_db"
 
 class PipelineRAG:
     def __init__(self, device: str = None):
-            #incialização do modelo de embeddigs
+        #incialização do modelo de embeddigs
         if device is not None: 
             self.model = SentenceTransformer("sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2", device=device)        
         else:
@@ -20,15 +20,15 @@ class PipelineRAG:
                 self.model = SentenceTransformer("sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2", device="cpu")
          
 
-            # incialização do banco vetorial persistente
+        # incialização do banco vetorial persistente
         self.chroma_client = chromadb.PersistentClient(path=CAMINHO_CHROMA)
         self.collection = self.chroma_client.get_or_create_collection(name="materiais_estudo")
     
-            #configurador de corte de texto
+        #configurador de corte de texto
         self.text_splitter = RecursiveCharacterTextSplitter(chunk_size = 1200, chunk_overlap = 250,separators=["\n\n", "\n", " ", ""],length_function=len)
 
     def extraia_txt_pdf(self, pdf_path: str) -> str:
-        "Abre PDF e extrai todo texto legível dele"
+        # abre PDF e extrai todo texto legível dele
         full_txt = []
         try:
             with pdfplumber.open(pdf_path) as pdf:
@@ -41,7 +41,7 @@ class PipelineRAG:
         return "\n".join(full_txt)
     
     def inicialize_banco_vetorial(self):
-        "Varre a pasta data/, então processa os arquivos novos e indexa no banco!"
+        # varre a pasta data/, então processa os arquivos novos e indexa no banco!
         if not os.path.exists(CAMINHO_DATA):
             print("  Pasta 'data' nao encontrada.")
             return
@@ -126,28 +126,32 @@ class PipelineRAG:
             print(
                 "\n  Todos os arquivos já estão indexados no ChromaDB. Nenhuma duplicidade detectada!"
             )
-    def busque_trechos_relevantes(self, query: str, top_k: int = 3) -> list:
-        """Realiza busca semântica usando os vetores do modelo."""
-        
-        # força o encode a gerar o vetor da string de forma direta
+    def busque_trechos_relevantes(self, query: str, top_k: int = 5) -> list:
+        """
+        realiza busca semantica e exporta a distância matemática para rankeamento.
+            retorna uma lista de tuplas: (texto_formatado, distancia).
+        """
+
+        # gera o vetor da string de forma direta
         embedding_bruto = self.model.encode(query)
         
-        # convertemos para uma lista Python nativa e achatamos completamente . garante que seja uma lista simples de floats unidimensional, n importa o que aconteça
+        # achatamento para lista nativa (unidimensional)
         import numpy as np
         if isinstance(embedding_bruto, np.ndarray):
             query_embedding = embedding_bruto.flatten().tolist()
         else:
             query_embedding = np.array(embedding_bruto).flatten().tolist()
 
-        # passamos o vetor limpo e envelopado em apenas UM nivel de lista externa exigido pelo ChromaDB
+        # busca no banco incluindo metrica de "distances" (scores)
         results = self.collection.query(
             query_embeddings=[query_embedding],
             n_results=top_k,
             include=["documents", "metadatas", "distances"]
         )
 
-        formatted_sections = []
+        sections_with_score = []
         
+        # extração e empacotamento
         if results and results['documents'] and results['documents'][0]:
             docs = results['documents'][0]
             metas = results['metadatas'][0]
@@ -155,6 +159,9 @@ class PipelineRAG:
 
             for doc, meta, dist in zip(docs, metas, distances):
                 fonte = meta.get('fonte', meta.get('arquivo', 'Livro Local'))
-                formatted_sections.append(f"[Origem: {fonte}]\n{doc}")
+                texto_formatado = f"[Origem: {fonte}]\n{doc}"
+                
+                # retornamos a tupla contendo o texto e sua pontuação de distância
+                sections_with_score.append((texto_formatado, dist))
                     
-        return formatted_sections
+        return sections_with_score

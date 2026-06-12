@@ -1,16 +1,30 @@
 import json
 from rag.pipeline import PipelineRAG
 from datetime import datetime, timedelta
+from deep_translator import GoogleTranslator
 
 from tools.tarefas import liste_tarefas
 from tools.agenda import consulte_agenda
 
 _instancia_rag = None
 
+def traduzir_query(query: str) -> dict:
+    """
+    Traduz a query dinamicamente.
+    Retorna um dicionário com a versão em PT e a versão em EN.
+        In: query - termo de busca para ser traduzido
+        Out: dicionario da query em Pt e En.
+    """
+    try:
+        query_en = GoogleTranslator(source="auto", target="en").translate(query)
+        query_pt = GoogleTranslator(source="auto", target="pt").translate(query)
+        return {"pt": query_pt, "en": query_en}
+    except Exception as e:
+        return {"pt": query, "en": query}
 
 def busque_material_rag(query: str) -> list[str]:
     """
-    Busca trechos relevantes em arquivos PDF e TXT usando busca semantica (RAG).
+    busca trechos relevantes em arquivos PDF e TXT usando busca semantica (RAG).
         In:  query — pergunta ou termo de busca
         Out: lista de strings com os trechos mais relevantes encontrados
     """
@@ -24,19 +38,36 @@ def busque_material_rag(query: str) -> list[str]:
             return [f"Erro ao carregar o modelo ou banco de dados: {e}"]
 
     try:
-        parts = _instancia_rag.busque_trechos_relevantes(query, top_k=5)
+        queries = traduzir_query(query)
+        
+        # busca as 2 versoes usando metodo da pipeline
+        pt_results = _instancia_rag.busque_trechos_relevantes(queries['pt'], top_k=5)
+        en_results = _instancia_rag.busque_trechos_relevantes(queries['en'], top_k=5)
 
-        if not parts:
-            return [
-                f"Aviso do Banco de Dados: O termo '{query}' não retornou fragmentos diretos nos livros locais.\n"
-                "Por favor, responda o aluno usando seu conhecimento geral (explicando o conceito de forma clara), "
-                "mas avise de maneira amigável que esse termo exato não consta explicitamente nos PDFs da pasta 'data'."
-            ]
+        # junta tudo em uma só lista de 10 elementos
+        all_results = pt_results + en_results
 
-        return parts
+
+        # remove duplicatas, mentendo sempre o melhor score (< distância)
+        unics_dict = {}
+        for txt, score in all_results:
+            if txt not in unics_dict:
+                unics_dict[txt] = score
+            else:
+                if score < unics_dict[txt]:
+                    unics_dict[txt] = score
+        
+        # ordenamos matematicamente pelo score (< distancia == > relevancia)
+        ordered_results = sorted(unics_dict.items(), key=lambda item: item[1])
+
+        top_5 = [txt for txt, score in ordered_results[:5]]
+
+        return top_5
+
 
     except Exception as e:
         return [f"Erro interno ao consultar o banco de dados vetorial: {e}"]
+        
 
 
 def monte_plano_estudos(disciplina: str, data_prova: str = "") -> str:
