@@ -1,109 +1,218 @@
-# Academic JARVIS - AI Agent
+# Academic JARVIS — AI Agent
 
-O **Academic JARVIS** é um assistente inteligente projetado para auxiliar estudantes no gerenciamento de sua rotina de estudos e na extração de conhecimento de materiais didáticos.
+O **Academic JARVIS** é um assistente inteligente projetado para auxiliar estudantes universitários no gerenciamento de sua rotina acadêmica e na extração de conhecimento de materiais didáticos.
 
-O sistema utiliza um modelo de linguagem (LLM) operando como um **Agente Raciocinador** capaz de acionar ferramentas locais (*Tool Calling*) para manipular calendários, listas de tarefas e realizar buscas semânticas em uma base de dados vetorial (RAG) alimentada por PDFs técnicos da faculdade e livros didáticos de domínio público.
+O sistema opera como um **Agente Raciocinador**: utilizando de um modelo de linguagem (LLM) analisa cada mensagem do usuário, decide qual ferramenta local acionar (*Tool Calling*) e combina os resultados para gerar respostas contextualizadas. O agente integra gestão de agenda, lista de tarefas, busca semântica em PDFs (RAG), geração de planos de estudo e um sistema interativo de quiz baseado em Active Recall.
 
-1. Link do video: https://youtu.be/03CtOU_9cgA
+1. Link do video (1): https://youtu.be/03CtOU_9cgA
+
+   Link do vídeo (2): .....
 
 2. Link do arquivo usado no video no Docs: https://drive.google.com/file/d/1IA6u3JEIZeixIgAZ3N57Q0tAw8lfxhfN/view?usp=drive_link
 
+
 ---
 
-## 1. Funcionalidades (Tools)
+## 1. Funcionalidades (Tools Implementadas)
 
-1. **Gestão de Tarefas e Agenda:** Lê, adiciona e concluí compromissos acadêmicos via manipulação de arquivos JSON locais.
-2. **Busca Semântica Avançada (RAG):** Vasculha PDFs e resumos técnicos usando um banco de dados vetorial baseado em embeddings multilíngues.
-3. **Memória Conversacional:** Mantém o contexto do chat ativo durante a execução das chamadas de ferramentas.
+| Ferramenta | Descrição |
+|---|---|
+| `consulte_agenda` | Consulta compromissos de um dia específico |
+| `consulte_semana` | Consulta toda a agenda da semana atual, com filtro por tipo |
+| `adicione_agenda` | Adiciona novo compromisso à agenda |
+| `liste_tarefas` | Lista tarefas filtradas por status (pendente/concluída) |
+| `adicione_tarefas` | Adiciona nova tarefa com título, prazo e descrição opcional |
+| `conclua_tarefa` | Marca tarefa como concluída por ID ou por palavra-chave |
+| `busque_material_rag` | Busca semântica bilíngue (PT+EN) nos materiais da pasta `/data` |
+| `monte_plano_estudos` | Combina agenda, tarefas e RAG para gerar plano de estudos |
+| `prepare_contexto_quiz` | Gera quiz de múltipla escolha personalizado via RAG |
+
+### Melhorias de Aprendizado
+
+- **Geração de Plano de Estudos:** a ferramenta `monte_plano_estudos` orquestra três fontes de dados simultaneamente e instrui a LLM a produzir um cronograma por dia com tarefas e resumo dos conceitos.
+- **Quiz Interativo (Active Recall):** a aba *Quiz Prático* permite ao aluno escolher uma disciplina, gerar um simulado dinâmico baseado nos PDFs indexados e receber feedback imediato com explicação para cada questão.
 
 ---
 
 ## 2. Modelos de IA Utilizados
 
-* **Orquestrador LLM:** `Gemma-3-12b-it` (via API externa / servidor acadêmico), responsável pelo raciocínio lógico e seleção de ferramentas.
-* **Embeddings (RAG):** `paraphrase-multilingual-MiniLM-L12-v2` rodando 100% localmente com suporte a aceleração por hardware (Nvidia CUDA).
-* **Vector Store:** `ChromaDB` para indexação e persistência dos vetores.
-* **Auxiliador de Arquitetura:** `Claude` para a validação, testes e planejamento do projeto.
-* **Auxiliador de Código:** `Google Gemini` para duvidas e correção de código (sintaxe principalmente).
+| Papel | Modelo | Localização |
+|---|---|---|
+| Orquestrador LLM | `Qwen2.5-14B-Instruct-AWQ` | API externa — servidor UFMS |
+| Embeddings (RAG) | `paraphrase-multilingual-MiniLM-L12-v2` | Local (CPU/CUDA via `sentence-transformers`) |
+| Tradução de query | `GoogleTranslator` (deep-translator) | Local |
+| Vector Store | `ChromaDB` (persistente em disco) | Local (`data/chroma_db/`) |
+
+
+> A busca RAG é **bilíngue**: cada consulta é traduzida automaticamente para PT e EN antes de ser enviada ao ChromaDB, compensando a diferença de idioma entre as perguntas (português) e os livros indexados (inglês).
 
 ---
 
-## 3. Como Executar o Projeto?
+## 3. Ferramentas de IA Usadas no Desenvolvimento
+
+- **Claude (Anthropic)** — Desing de Prompts, auxiliar no planejamento de arquitetura.
+
+- **Google Gemini** — 
+Refatoração, Mitigação de Bugs e erros de sintaxe, alem de Otimização do pipeline.
+
+---
+
+## 4. Como Executar o Projeto
 
 ### Pré-requisitos
-Certifique-se de ter o **Python 3.10 ou superior** instalado em sua máquina.
 
-### Instalação e Configuração
+- Python **3.10** ou superior
+- `pip` atualizado
 
-1. **Clone o repositório:**
-   ```bash
-   git clone [https://github.com/jp-huppes/Academic-Jarvis.git]
-   cd Academic-Jarvis
+### Instalação
 
-2. **Instale dependências:**
-    ```bash
-    pip install -r requirements.txt
-    
-3. **Variaveis**
-   Crie um arquivo chamado .env na raiz do projeto e insira a sua credencial de acesso:
-   ```bash
-      API_KEY = "Sua_Chave_Aqui"
+**1. Clone o repositório:**
+```bash
+git clone https://github.com/jp-huppes/Academic-Jarvis.git
+cd Academic-Jarvis
+```
 
-5. **Inicialização**
+**2. Crie e ative o ambiente virtual:**
+```bash
+python -m venv .venv
 
-   Antes de rodar o assistente pela primeira vez, processe os PDFs locais executando o script de ingestão:
-      ```bash
-      python indexar.py
-      ```
-   Então, para abrir a interface gráfica web via navegador:
-      ```bash
-       python -B -m streamlit run app.py
-      ```
-   Caso queira interagir com o assistente diretamente pelo terminal:
-      ```bash
-      python main.py
-      ```
+# Windows
+.venv\Scripts\activate
 
-### Documentação do Dataset
+# Linux / macOS
+source .venv/bin/activate
+```
 
- 1. **Origem e Composição dos Dados**
-   A pasta /data reúne uma biblioteca técnica com mais de 10 documentos acadêmicos que cobre o núclos de diciplinas do curso. Entre as principais referências indexadas estão:
-      - computer_networking_top-down_aproach.pdf (Redes de Computadores - Kurose)
-      - Machine_Learning.pdf (Aprendizado de Máquina - Tom Mitchell)
-      - algoritmos-teoria-e-partica-thomas-cormen.pdf (Algoritmos - Thomas Cormen)
-      - Deep+Learning+Ian+Goodfellow.pdf (Deep Learning - Ian Goodfellow)
-      - 2020-Scrum-Guide-Portuguese-European-As_regras_do_jogo.pdf (Metodologias Ágeis)
+**3. Instale as dependências:**
+```bash
+pip install -r requirements.txt
+```
 
-   Enquanto outros livros e notas de aula cobrem Álgebra Linear, Teoria da Computação e Linguagens de Programação (C++ e Java).
+**4. Configure a chave de API:**
 
-   2. **Tipo de Dados**
-      Em sua maioria os arquivos tetuais tem formato em PDF e resumos em TXT.
+Crie um arquivo `.env` na raiz do projeto:
+```
+API_KEY=sua_chave_aqui
+```
+>SEGURANÇA: Certifique-se de que o arquivo .env esteja listado no seu .gitignore para evitar o vazamento acidental da chave (caso publique em um repositório público no GitHub)
 
-   3. **Limitações Conhecidas**
-      - Restrição Textual: a extração via 'pdfplumber' lê estritamente caracteres de texto plano. Diagramas de arquitetura, imagens de redes, gráficos de funções e tabelas complexas não são indexados na base vetorial.
-      - Alinhamento Linguístico: Embora o modelo de embeddings seja multilíngue, os livros base estão em inglês e as requisições do chat ocorrem em português, o que pode gerar pequenas distorções de proximidade semântica em termos técnicos muito específicos.
-   
-   4. **Estratégia de Chunking (Fragmentação)**
-      Para preservar o contexto sem estourar a janela de tokens do modelo de embeddings:
-      - Algoritmo: RecursiveCharacterTextSplitter (LangChain), dividindo os textos de forma inteligente ao priorizar quebras de parágrafos e pontos finais.
-      - Configuração: Blocos fixos de 1000 caracteres com sobreposição (overlap) de 200 caracteres entre pedaços vizinhos, garantindo a continuidade de sentenças divididas nas bordas.
+### Indexação do RAG (primeira execução obrigatória)
 
-### Estrutura de Pastas e Arquivos
+Processa todos os PDFs e TXTs da pasta `/data` e alimenta o ChromaDB:
+```bash
+python indexar.py
+```
 
-```text
-├── .streamlit/             # Configurações visuais e de tema do Streamlit
-├── data/                  # Pasta contendo os PDFs originais do Dataset
-│   └── chroma_db/         # [Diretório Local] Banco vetorial gerado pelo indexar.py
-├── logs/                  # Histórico local de execuções e tool calls
-├── memory/                # Arquivos de persistência de dados 
+> Este passo só precisa ser repetido se novos documentos forem adicionados à pasta "`/data`".
+
+### Executar a Interface Gráfica (recomendado)
+
+```bash
+python -B -m streamlit run app.py
+```
+
+Acesse `http://localhost:8501` no navegador.
+
+### Executar via Terminal (alternativo, sem quiz)
+
+```bash
+python main.py
+```
+
+---
+
+## 5. Estrutura do Projeto
+
+```
+Academic-Jarvis/
+│
+├── .streamlit/             # Tema e configurações visuais do Streamlit
+├── data/                   # Dataset: PDFs e TXTs acadêmicos (36 arquivos)
+│   └── chroma_db/          # [Gerado] Banco vetorial ChromaDB (não versionar)
+│
+├── logs/
+│   └── tool_calls.jsonl    # Registro automático de todas as chamadas de ferramentas
+│
+├── memory/
+│   ├── agenda.json         # Dados persistentes da agenda acadêmica
+│   └── tarefas.json        # Dados persistentes da lista de tarefas
+│
 ├── rag/
-│   └── pipeline.py        # Arquitetura de busca semântica e recuperação vetorial
+│   └── pipeline.py         # Pipeline RAG: leitura, chunking, embeddings e busca
+│
 ├── tools/
-│   ├── agenda.py          # Funções de backend para controle do calendário
-│   ├── tarefas.py         # Funções de backend para lista de afazeres
-│   ├── estudos.py         # Ferramenta de integração com o módulo de RAG
-│   └── definitions.py     # Esquemas de declaração JSON para o Tool Calling do modelo
-├── app.py                 # Interface gráfica web em Streamlit (Execução Oficial)
-├── indexar.py             # Script automatizado de leitura, chunking e indexação
-├── requirements.txt       # Relação de bibliotecas e dependências de terceiros
-└── README.md              # Documentação principal e instruções de entrega
+│   ├── agenda.py           # Backend das ferramentas de calendário
+│   ├── tarefas.py          # Backend das ferramentas de tarefas
+│   ├── estudos.py          # Tool RAG com busca bilíngue e geração de plano de estudos
+│   ├── quiz.py             # Geração de quiz de múltipla escolha via RAG
+│   ├── logger.py           # Sistema de log JSONL de tool calls
+│   └── definitions.py      # Schemas JSON das ferramentas para o Tool Calling
+│
+├── app.py                  # Interface gráfica Streamlit (execução principal)
+├── main.py                 # Interface de linha de comando (CLI)
+├── indexar.py              # Script de indexação e atualização do banco RAG
+├── requirements.txt        # Dependências do projeto
+└── README.md               # Este arquivo
+```
+
+---
+
+## 6. Dataset
+
+### Origem e Composição
+
+A pasta `/data` contém **36 documentos acadêmicos** cobrindo as disciplinas do curso. Entre as principais referências indexadas:
+
+| Arquivo | Conteúdo |
+|---|---|
+| `computer_networking_top-down_approach.pdf` | Redes de Computadores — Kurose & Ross |
+| `Machine_Learning.pdf` | Aprendizado de Máquina — Tom Mitchell |
+| `algoritmos-teoria-e-pratica-thomas-cormen.pdf` | Algoritmos — Thomas Cormen |
+| `Deep+Learning+Ian+Goodfellow.pdf` | Deep Learning — Ian Goodfellow |
+| `2020-Scrum-Guide-Portuguese-European.pdf` | Metodologias Ágeis — Scrum Guide |
+
+Outros documentos cobrem: Álgebra Linear, Teoria da Computação (LFA), Linguagens de Programação (C++ e Java), Probabilidade e Estatística, e resumos de aulas em formato TXT.
+
+### Tipo de Dados
+
+Arquivos em formato **PDF** (livros e apostilas) e **TXT** (notas e resumos de aula).
+
+### Limitações Conhecidas
+
+- **Restrição textual:** a extração por meio `pdfplumber` lê estritamente texto plano. Diagramas, imagens, gráficos e tabelas complexas não são indexados.
+- **Alinhamento linguístico:** os livros estão majoritariamente em inglês (língua de origem) enquanto as consultas ocorrem em português. Mitigado pela busca bilíngue automática com `deep-translator`.
+- **Cobertura temática:** o dataset cobre as disciplinas do semestre atual. Ou seja, tópicos fora desse escopo retornam respostas baseadas no conhecimento geral da LLM, com aviso ao usuário.
+
+### Estratégia de Chunking
+
+| Parâmetro | Valor |
+|---|---|
+| Algoritmo | `RecursiveCharacterTextSplitter` (LangChain) |
+| Tamanho do chunk | 1200 caracteres |
+| Sobreposição (overlap) | 250 caracteres |
+| Separadores de prioridade | `\n\n` → `\n` → ` ` → `""` |
+
+O `RecursiveCharacterTextSplitter` respeita quebras naturais de parágrafo e sentença antes de cortar por tamanho fixo, preservando a coerência semântica dos fragmentos. A sobreposição de 250 caracteres garante continuidade entre chunks vizinhos, evitando perda de contexto em fronteiras.
+
+**Impacto no RAG:** chunks maiores (1200 VS 500 da versão anterior) reduzem a fragmentação de explicações técnicas longas, melhorando a qualidade das respostas. O overlap maior garante que sentenças divididas na borda de um chunk sejam capturadas pelo chunk seguinte.
+
+---
+
+## 7. Arquitetura do Sistema
+
+```
+Usuário
+   ↓
+Interface (Streamlit / CLI)
+   ↓
+Orquestrador — LLM Qwen2.5-14B
+   ↓ decide qual tool chamar (até 3 iterações por turno)
+Tool Router (MAPEADOR_DE_TOOLS)
+    ├── consulte_agenda / consulte_semana / adicione_agenda  →  memory/agenda.json
+    ├── liste_tarefas / adicione_tarefas / conclua_tarefa    →  memory/tarefas.json
+    ├── busque_material_rag  →  Tradutor (PT ↔ EN)  →  ChromaDB (Base Bilíngue)
+    ├── monte_plano_estudos  ─  →  Agenda + Tarefas + RAG
+    └── prepare_contexto_quiz ─  →  RAG → JSON → Quiz Engine
+                                          ↓
+                               logs/tool_calls.jsonl
+```
