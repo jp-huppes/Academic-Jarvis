@@ -27,10 +27,16 @@ DADOS_DAS_FERRAMENTAS = [
         "type": "function",
         "function": {
             "name": "consulte_semana",
-            "description": "Consulta todos os compromissos acadêmicos (aulas e provas) da semana atual inteira.",
+            "description": "Consulta a agenda de eventos da semana atual.",
             "parameters": {
                 "type": "object",
-                "properties": {},
+                "properties": {
+                    "tipo": {
+                        "type": "string",
+                        "description": "Filtre por 'prova' se o usuário pedir exames/provas, ou 'trabalho' para entregas. Omitir para ver tudo.",
+                        "enum": ["prova", "trabalho", "todos"]
+                    }
+                },
                 "required": []
             }
         }
