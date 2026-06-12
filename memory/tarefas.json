@@ -33,5 +33,40 @@
         "prazo": "2026-05-27",
         "concluida": false,
         "descricao": "Aula de Probabilidade e Estatística"
+    },
+    {
+        "id": "6",
+        "titulo": "Revisar matéria para Prova de LFA",
+        "prazo": "2026-06-14",
+        "concluida": false,
+        "descricao": "Estudar Linguagens Formais e Autómatos. Foco em Expressões Regulares e Gramáticas usando os PDFs locais."
+    },
+    {
+        "id": "7",
+        "titulo": "Simulado de IA no JARVIS",
+        "prazo": "2026-06-14",
+        "concluida": false,
+        "descricao": "Gerar um quiz personalizado de Inteligência Artificial para testar os conceitos antes da prova de segunda-feira."
+    },
+    {
+        "id": "8",
+        "titulo": "Estudar Probabilidade e Estatística",
+        "prazo": "2026-06-16",
+        "concluida": false,
+        "descricao": "Resolver exercícios de revisão e ler os resumos teóricos para a prova de quarta-feira."
+    },
+    {
+        "id": "9",
+        "titulo": "Revisão de Álgebra Linear",
+        "prazo": "2026-06-17",
+        "concluida": false,
+        "descricao": "Revisar transformações lineares e matrizes um dia antes da prova no Bloco 1."
+    },
+    {
+        "id": "10",
+        "titulo": "Finalizar Trabalho de LPOO",
+        "prazo": "2026-06-20",
+        "concluida": false,
+        "descricao": "Concluir a codificação do projeto de Linguagens de Programação Orientada a Objetos e preparar o envio."
     }
 ]
