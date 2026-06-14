@@ -202,7 +202,8 @@ def _chame_llm(mensagens: list) -> str:
     try:
         client = OpenAI(
             base_url= 'https://llm.liaufms.org/v1/qwen2-5-14b-instruct-awq',
-            api_key=os.getenv("API_KEY", "")
+            api_key=os.getenv("API_KEY", ""),
+            timeout=120.0
         )
 
         resposta = client.chat.completions.create(
