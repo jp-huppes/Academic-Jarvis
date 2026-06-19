@@ -216,3 +216,32 @@ Tool Router (MAPEADOR_DE_TOOLS)
                                           ↓
                                logs/tool_calls.jsonl
 ```
+
+---
+
+## 8. Avaliação do Sistema (Testes de Integração)
+
+O sistema foi submetido a um plano de testes práticos focado em estressar as capacidades de recuperação (RAG), uso de ferramentas (Tasks/Agenda) e raciocínio (Plano de Estudos) da LLM.
+
+### Tabela de Resultados
+
+| # | Categoria | Pergunta | Tool Acionada | Resposta do JARVIS | Classificação |
+|---|---|---|---|---|---|
+| 1 | RAG | O que é o protocolo TCP e como ele garante a entrega confiável de dados? | `busque_material_rag` | Explicou corretamente os mecanismos (Acknowledgment, Retransmissão, Sequencing, Checksum) usando o material. Citou as fontes ao final. | **Correta** |
+| 2 | RAG | Explique o algoritmo QuickSort e qual é sua complexidade de tempo no pior caso. | `busque_material_rag` | Descreveu o particionamento via pivô e acertou a complexidade do pior caso ($O(n^2)$) e do caso médio. | **Correta** |
+| 3 | RAG | O que é overfitting em Machine Learning e como podemos evitá-lo? | `busque_material_rag` | Definiu o conceito e listou múltiplas técnicas precisas extraídas dos livros (L1/L2, Dropout, Cross-Validation, Early Stopping). | **Correta** |
+| 4 | Agenda | O que tenho na agenda para hoje? | `consulte_agenda` | Consultou a data do sistema (19/06/2026) e confirmou que a agenda do dia estava livre. | **Correta** |
+| 5 | Agenda | Quais provas tenho marcadas esta semana? | `consulte_semana` | Filtrou com sucesso apenas as 3 provas (LFA, Prob/Est e Álgebra Linear) dentre todos os eventos retornados pela Tool. | **Correta** |
+| 6 | Tarefas | Liste todas as minhas tarefas pendentes. | `liste_tarefas` | Listou 8 tarefas corretamente com suas respectivas descrições e prazos do arquivo JSON. | **Correta** |
+| 7 | Tarefas | Adiciona uma tarefa chamada "Revisar conteúdo de Scrum" com prazo para a próxima sexta-feira. | `adicione_tarefas` | Adicionou a tarefa com sucesso, mas **errou o cálculo da data**. "Próxima sexta" a partir de 19/06 seria 26/06, mas a LLM agendou para 24/06 (quarta-feira). | **Parcialmente Correta** |
+| 8 | Planejamento | Monte um plano de estudos completo para a disciplina de IA. | `monte_plano_estudos` | Estruturou um plano coerente de 5 dias combinando ML, DL e criação de quizzes, mas sofreu de *memory leak*, incluindo a tarefa "Scrum" (da pergunta anterior) no plano de IA. | **Parcialmente Correta** |
+| 9 | Quiz | Quero fazer um simulado sobre algoritmos de ordenação. | `prepare_contexto_quiz` | Confirmou a geração do JSON estruturado e redirecionou o usuário para a aba 'Quiz Prático'. A interface renderizou com sucesso. | **Correta** |
+| 10 | Falha Intencional | Quais são as equações diferenciais usadas no modelo SIR? | `busque_material_rag` | Respondeu detalhadamente com conhecimento interno (já que não há livros de biologia no RAG), mas **falsificou a tag** de fontes consultadas, falhando no isolamento do contexto. | **Incorreta (Esperada)** |
+
+### Análise de Comportamento e Oportunidades de Melhoria
+
+A execução prática revelou que o core do RAG e das APIs internas está operando de forma perfeitamente estável. Os pontos de falha (Questões 7, 8 e 10) demonstram comportamentos nativos de Modelos de Linguagem (LLMs) que validam a necessidade de *guardrails* adicionais no futuro:
+
+* **Raciocínio Matemático (Erro de Datas Relativas):** A LLM falhou no cálculo de deslocamento de dias do calendário. A mitigação ideal é delegar essa responsabilidade para o código Python ao invés de depender do raciocínio da IA.
+* **Vazamento de Contexto (Memory Leak em Planos):** Ao orquestrar o plano de estudos, a IA puxou tarefas que estavam apenas no histórico ativo da conversa, misturando contextos. Pode ser mitigado reforçando o *System Prompt* para se ater estritamente ao Payload da *tool*.
+* **Alucinação Positiva (Falsa Citação):** Ao não encontrar dados no RAG sobre um tema, a IA usou conhecimento pré-treinado para não deixar o usuário sem resposta, mas manteve a máscara de citação do sistema. Reforços nas condicionais de falha do RAG resolverão este comportamento.
