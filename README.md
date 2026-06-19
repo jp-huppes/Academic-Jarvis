@@ -6,10 +6,12 @@ O sistema opera como um **Agente Raciocinador**: utilizando de um modelo de ling
 
 1. Link do video (1): https://youtu.be/03CtOU_9cgA
 
-   Link do vídeo (2): .....
+   Link do vídeo (2): https://youtu.be/ik2O9Hdm9ro
 
-2. Link do arquivo usado no video no Docs: https://drive.google.com/file/d/1IA6u3JEIZeixIgAZ3N57Q0tAw8lfxhfN/view?usp=drive_link
+2. Link do arquivo usado no video (1) no Docs: https://drive.google.com/file/d/1IA6u3JEIZeixIgAZ3N57Q0tAw8lfxhfN/view?usp=drive_link
+   Link do arquivo usado no video (2) no Docs: https://drive.google.com/file/d/1HYFlZwlJvPc6X8IMnED3V7XGvbLyXyEM/view?usp=sharing
 
+3. Link do relatorio no Docs: https://drive.google.com/file/d/1F0gj0jDK10B9Q_YXg0gg0Plut04IptVA/view?usp=sharing
 
 ---
 
@@ -50,7 +52,7 @@ O sistema opera como um **Agente Raciocinador**: utilizando de um modelo de ling
 
 ## 3. Ferramentas de IA Usadas no Desenvolvimento
 
-- **Claude (Anthropic)** — Desing de Prompts, auxiliar no planejamento de arquitetura.
+- **Claude (Anthropic)** — Desing de Prompts, auxiliar no planejamento de arquitetura e formatação do relatório.
 
 - **Google Gemini** — 
 Refatoração, Mitigação de Bugs e erros de sintaxe, alem de Otimização do pipeline.
