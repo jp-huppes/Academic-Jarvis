@@ -1,12 +1,43 @@
+import os
 import json
-from rag.pipeline import PipelineRAG
+import openai
+from openai import OpenAI
 from datetime import datetime, timedelta
 from deep_translator import GoogleTranslator
 
+from rag.pipeline import PipelineRAG
 from tools.tarefas import liste_tarefas
 from tools.agenda import consulte_agenda
 
 _instancia_rag = None
+
+def expandir_query(query: str) -> str:
+    """
+    Enriquece a query original com o significado das siglas e jargões da área da Computação antes de ir para o ChromaDB
+    """
+    prompt = f"""Você é um componente de otimização de busca vetorial para Ciência da Computação.
+    Sua missão é pegar a query do usuário e expandir siglas (ex: IA, LFA, POO, BD, API) para os seus nomes completos.
+    Mantenha a resposta extremamente curta e focada apenas nos termos de busca. NÃO forneça explicações.
+
+    Query original: "{query}"
+    Termos otimizados para busca:"""
+
+    try:
+        client = OpenAI(
+            base_url="https://llm.liaufms.org/v1/qwen2-5-14b-instruct-awq",
+            api_key=os.getenv("API_KEY", ""),
+            timeout=120.0
+        )
+        answer = client.chat.completions.create(
+            model="Qwen/Qwen2.5-14B-Instruct-AWQ",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.2
+        )
+        expanded_txt = answer.choices[0].message.content.strip()
+        return expanded_txt
+    except Exception as e:
+        return query
+
 
 def traduzir_query(query: str) -> dict:
     """
@@ -38,15 +69,18 @@ def busque_material_rag(query: str) -> list[str]:
             return [f"Erro ao carregar o modelo ou banco de dados: {e}"]
 
     try:
-        queries = traduzir_query(query)
+        # expande-se a query para melhor pesquisa
+        optimized_query =  expandir_query(query)
+
+        # traduz a query expandida para busca bilíngue
+        queries = traduzir_query(optimized_query)
         
-        # busca as 2 versoes usando metodo da pipeline
+        # busca os trechos e os scores
         pt_results = _instancia_rag.busque_trechos_relevantes(queries['pt'], top_k=5)
         en_results = _instancia_rag.busque_trechos_relevantes(queries['en'], top_k=5)
 
         # junta tudo em uma só lista de 10 elementos
         all_results = pt_results + en_results
-
 
         # remove duplicatas, mentendo sempre o melhor score (< distância)
         unics_dict = {}
@@ -57,7 +91,7 @@ def busque_material_rag(query: str) -> list[str]:
                 if score < unics_dict[txt]:
                     unics_dict[txt] = score
         
-        # ordenamos matematicamente pelo score (< distancia == > relevancia)
+        # ordenamos matematicamente pelo score (menor distancia = maior relevancia)
         ordered_results = sorted(unics_dict.items(), key=lambda item: item[1])
 
         top_5 = [txt for txt, score in ordered_results[:5]]
